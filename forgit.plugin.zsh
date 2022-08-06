@@ -297,8 +297,8 @@ forgit::checkout::tag() {
 # git checkout-commit selector
 forgit::checkout::commit() {
     forgit::inside_work_tree || return 1
-    [[ $# -ne 0 ]] && { git checkout "$@"; return $?; }
-    local cmd opts graph
+    local cmd opts graph sha
+    [[ $# -ne 0 ]] && { sha="$@" }
     cmd="echo {} | $forgit_extract_sha |xargs -I% git show --color=always % | $forgit_show_pager"
     opts="
         $FORGIT_FZF_DEFAULT_OPTS
@@ -309,7 +309,7 @@ forgit::checkout::commit() {
     "
     graph=--graph
     [[ $FORGIT_LOG_GRAPH_ENABLE == false ]] && graph=
-    eval "git log $graph --color=always --format='$forgit_log_format' $forgit_emojify" |
+    eval "git log $graph --color=always --format='$forgit_log_format' $forgit_emojify" "$sha" |
         FZF_DEFAULT_OPTS="$opts" fzf | eval "$forgit_extract_sha" | xargs -I% git checkout % --
 }
 
